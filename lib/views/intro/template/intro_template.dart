@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:seeable/constant/value_constant.dart';
 import 'package:seeable/widgets/custom_submit_button.dart';
 import 'package:seeable/widgets/text_font_style.dart';
 
 class IntroTemplate extends StatelessWidget {
   final bool isWelcomePage;
-  final IconData icon;
+  final String iconPath;
   final String description;
   final Function() next;
   final Function() back;
@@ -13,7 +15,7 @@ class IntroTemplate extends StatelessWidget {
   const IntroTemplate({
     super.key,
     this.isWelcomePage = false,
-    required this.icon,
+    required this.iconPath,
     required this.description,
     required this.next,
     required this.back,
@@ -22,12 +24,15 @@ class IntroTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _introContent(),
-            isWelcomePage ? _welcomeButton() : _actionButton(),
-          ],
+      body: SizedBox(
+        width: Get.width,
+        child: SafeArea(
+          child: Column(
+            children: [
+              _introContent(),
+              isWelcomePage ? _welcomeButton() : _actionButton(),
+            ],
+          ),
         ),
       ),
     );
@@ -35,50 +40,68 @@ class IntroTemplate extends StatelessWidget {
 
   _introContent() {
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _permissionIcon(),
-          const SizedBox(height: 30.0),
-          _permissionDescription(),
-        ],
-      ),
+      child: isWelcomePage ? _welcomeTemplate() : _permissionTemplate(),
     );
   }
 
   _permissionIcon() {
-    return Container(
-      height: 300.0,
-      width: 300.0,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(150.0),
-      ),
-      child: Center(
-        child: Icon(
-          icon,
-          size: 100.0,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: SvgPicture.asset(
+        iconPath,
+        height: 400.0,
       ),
     );
   }
 
+  _permissionTemplate() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _permissionIcon(),
+        const SizedBox(height: 30.0),
+        _permissionDescription(),
+      ],
+    );
+  }
+
+  _welcomeTemplate() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SvgPicture.asset(
+          'assets/logo/seeable_logo.svg',
+          height: 300.0,
+        ),
+        const SizedBox(height: 30.0),
+        TextFontStyle(
+          description,
+          size: fontSizeXXL,
+          align: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
   _permissionDescription() {
-    return TextFontStyle(
-      description,
-      size: fontSizeL,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextFontStyle(
+        description,
+        size: fontSizeXXL,
+        align: TextAlign.center,
+      ),
     );
   }
 
   _welcomeButton() {
     return CustomSubmitButton(
       onTap: next,
-      title: 'Start',
-      buttonMargin: const EdgeInsets.symmetric(
-        horizontal: 100.0,
-        vertical: 50.0,
-      ),
+      title: 'start application'.tr,
+      buttonWidth: Get.width - 100,
+      buttonMargin: const EdgeInsets.symmetric(vertical: 50.0),
       borderRadius: 25.0,
+      fontSize: fontSizeXL,
     );
   }
 
@@ -90,8 +113,8 @@ class IntroTemplate extends StatelessWidget {
         children: [
           InkWell(
             onTap: back,
-            child: const TextFontStyle(
-              'ย้อนกลับ',
+            child: TextFontStyle(
+              'back'.tr,
               size: fontSizeL,
             ),
           ),
@@ -101,11 +124,14 @@ class IntroTemplate extends StatelessWidget {
               height: 50.0,
               width: 50.0,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: primaryColor,
                 borderRadius: BorderRadius.circular(25.0),
               ),
               child: const Center(
-                child: Icon(Icons.arrow_forward_rounded),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),

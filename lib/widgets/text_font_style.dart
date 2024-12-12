@@ -9,15 +9,16 @@ class TextFontStyle extends StatelessWidget {
   final FontWeight weight;
   final bool underline;
   final TextOverflow? overflow;
+  final TextAlign align;
 
-  const TextFontStyle(
-    this.data, {
+  const TextFontStyle(this.data, {
     super.key,
     this.color = Colors.black,
     this.size = fontSizeS,
     this.weight = FontWeight.normal,
     this.underline = false,
     this.overflow,
+    this.align = TextAlign.left,
   });
 
   @override
@@ -28,10 +29,13 @@ class TextFontStyle extends StatelessWidget {
         color: color,
         fontSize: size,
         fontWeight: weight,
-        fontFamily: GoogleFonts.kanit().fontFamily,
+        fontFamily: GoogleFonts
+            .kanit()
+            .fontFamily,
         decoration: underline ? TextDecoration.underline : null,
         overflow: overflow,
       ),
+      textAlign: align,
     );
   }
 }

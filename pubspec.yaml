@@ -22,6 +22,8 @@ dependencies:
   shared_preferences: ^2.3.3
   flutter_blue_plus: ^1.34.5
   permission_handler: ^11.3.1
+  flutter_localization: ^0.2.2
+  flutter_svg: ^2.0.16
 
 dev_dependencies:
   flutter_test:
@@ -35,3 +37,6 @@ flutter:
 
   assets:
     - assets/data/
+    - assets/icons/
+    - assets/logo/
+    - assets/intro/

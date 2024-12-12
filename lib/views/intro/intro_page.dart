@@ -31,15 +31,15 @@ class _IntroPageState extends State<IntroPage> {
         case 0:
           return IntroTemplate(
             isWelcomePage: true,
-            icon: Icons.home_filled,
-            description: 'Welcome to Seeable',
+            iconPath: '',
+            description: 'welcome to seeable'.tr,
             next: _welcome,
             back: () {},
           );
         case 1:
           return IntroTemplate(
-            icon: Icons.camera_alt_rounded,
-            description: 'camera',
+            iconPath: 'assets/intro/camera.svg',
+            description: 'camera intro description'.tr,
             next: _cameraPermission,
             back: () {
               _introController.currentPage(0);
@@ -48,8 +48,8 @@ class _IntroPageState extends State<IntroPage> {
 
         case 2:
           return IntroTemplate(
-            icon: Icons.mic_rounded,
-            description: 'microphone',
+            iconPath: 'assets/intro/microphone.svg',
+            description: 'mic intro description'.tr,
             next: _micPermission,
             back: () {
               _introController.currentPage(1);
@@ -58,8 +58,8 @@ class _IntroPageState extends State<IntroPage> {
 
         case 3:
           return IntroTemplate(
-            icon: Icons.record_voice_over_rounded,
-            description: 'speech to text',
+            iconPath: 'assets/intro/speech.svg',
+            description: 'stt intro description'.tr,
             next: _speechToTextPermission,
             back: () {
               _introController.currentPage(2);
@@ -68,8 +68,8 @@ class _IntroPageState extends State<IntroPage> {
 
         case 4:
           return IntroTemplate(
-            icon: Icons.accessibility_new_rounded,
-            description: 'accessibility',
+            iconPath: 'assets/intro/accessibility.svg',
+            description: 'accessibility intro description'.tr,
             next: _accessibilityPermission,
             back: () {
               _introController.currentPage(3);
@@ -78,8 +78,8 @@ class _IntroPageState extends State<IntroPage> {
 
         case 5:
           return IntroTemplate(
-            icon: Icons.location_pin,
-            description: 'location',
+            iconPath: 'assets/intro/location.svg',
+            description: 'location intro description'.tr,
             next: _locationPermission,
             back: () {
               _introController.currentPage(4);
@@ -88,8 +88,8 @@ class _IntroPageState extends State<IntroPage> {
 
         case 6:
           return IntroTemplate(
-            icon: Icons.bluetooth,
-            description: 'bluetooth',
+            iconPath: 'assets/intro/bluetooth.svg',
+            description: 'bluetooth intro description'.tr,
             next: _bluetoothPermission,
             back: () {
               _introController.currentPage(5);
@@ -155,24 +155,24 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   _locationPermission() async {
-    var result = await Permission.assistant.request();
+    var result = await Permission.location.request();
 
     if (result == PermissionStatus.granted) {
-      _appInfoController.accessibilityGranted(true);
+      _appInfoController.locationGranted(true);
     } else {
-      _appInfoController.accessibilityGranted(false);
+      _appInfoController.locationGranted(false);
     }
 
     _introController.currentPage(6);
   }
 
   _bluetoothPermission() async {
-    var result = await Permission.assistant.request();
+    var result = await Permission.bluetoothConnect.request();
 
     if (result == PermissionStatus.granted) {
-      _appInfoController.accessibilityGranted(true);
+      _appInfoController.bluetooth(true);
     } else {
-      _appInfoController.accessibilityGranted(false);
+      _appInfoController.bluetooth(false);
     }
 
     await storage.write(key: 'intro', value: 'true');

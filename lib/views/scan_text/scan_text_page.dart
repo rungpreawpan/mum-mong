@@ -3,19 +3,20 @@ import 'package:get/get.dart';
 import 'package:seeable/constant/value_constant.dart';
 import 'package:seeable/widgets/text_font_style.dart';
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+class ScanTextPage extends StatelessWidget {
+  const ScanTextPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: TextFontStyle(
-          'settings'.tr,
+          'scan text'.tr,
           size: fontSizeXL,
           weight: FontWeight.bold,
         ),
       ),
+      body: SizedBox(),
     );
   }
 }

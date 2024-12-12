@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:seeable/constant/value_constant.dart';
 import 'package:seeable/controller/app_info_controller.dart';
@@ -25,6 +26,7 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
 
     _checkFirstRun();
+    _checkVersion();
     _redirect();
   }
 
@@ -38,10 +40,16 @@ class _SplashPageState extends State<SplashPage> {
     }
   }
 
+  _checkVersion() {
+    _appInfoController.getDeviceInfo();
+  }
+
   _redirect() async {
     await _appInfoController.getDeviceInfo();
     await Future.delayed(const Duration(seconds: 2));
 
+    // for dev only
+    // await storage.delete(key: 'intro');
     String? intro = await storage.read(key: 'intro');
 
     if (intro == null) {
@@ -54,15 +62,14 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox(
-        height: Get.height,
-        width: Get.width,
-        child: Center(
+      body: SafeArea(
+        child: SizedBox(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _logo(),
-              const SizedBox(height: marginX2),
+              Expanded(
+                child: _logo(),
+              ),
               _appVersion(),
             ],
           ),
@@ -72,10 +79,9 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   _logo() {
-    return Container(
-      color: Colors.grey,
-      width: 100,
-      height: 100,
+    return SvgPicture.asset(
+      'assets/logo/seeable_logo.svg',
+      height: 300.0,
     );
   }
 
@@ -84,7 +90,7 @@ class _SplashPageState extends State<SplashPage> {
       return TextFontStyle(
         'v ${_appInfoController.appVersion.value}',
         size: fontSizeM,
-        color: Colors.white,
+        color: primaryColor,
         weight: FontWeight.bold,
       );
     });
