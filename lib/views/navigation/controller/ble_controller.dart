@@ -10,6 +10,7 @@ class BleController extends GetxController {
 
   RxList<ScanResult> deviceList = <ScanResult>[].obs;
   List favoriteList = [];
+  int? rssi;
 
   scanDevices() async {
     if (kDebugMode) {
@@ -45,12 +46,32 @@ class BleController extends GetxController {
         .first;
 
     await FlutterBluePlus.startScan(
-      timeout: const Duration(seconds: 3),
+      timeout: const Duration(seconds: 5),
     );
 
     await FlutterBluePlus.isScanning.where((val) => val == false).first;
 
     isScanning.value = false;
+  }
+
+  connectDevice(BluetoothDevice device) async {
+    await device.connect();
+
+    if (kDebugMode) {
+      print('Connected to ${device.platformName}');
+    }
+  }
+
+  readRssi(BluetoothDevice device) async {
+    rssi = await device.readRssi(timeout: 1);
+  }
+
+  disconnectDevice(BluetoothDevice device) async {
+    await device.disconnect();
+
+    if (kDebugMode) {
+      print('Disconnected to ${device.platformName}');
+    }
   }
 
   clear() {

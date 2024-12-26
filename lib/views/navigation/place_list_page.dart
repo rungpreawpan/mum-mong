@@ -50,19 +50,22 @@ class _PlaceListPageState extends State<PlaceListPage> {
   _startTimer() async {
     _timer ??= Timer.periodic(
       const Duration(seconds: 5),
-      (Timer t) async {
+          (Timer t) async {
         await _bleController.scanDevices();
 
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
       },
     );
   }
 
   @override
   void dispose() {
-    super.dispose();
     _timer?.cancel();
     _timer = null;
+
+    super.dispose();
   }
 
   @override
@@ -107,9 +110,20 @@ class _PlaceListPageState extends State<PlaceListPage> {
 
               return ListViewButton(
                 onTap: () {
+                  _timer?.cancel();
+                  _timer = null;
+
+                  //TODO:
                   Get.to(
-                    () => NavigationPage(appBarTitle: item.device.platformName),
+                        () => NavigationPage(device: item.device),
                   );
+
+                  // if (result != null) {
+                  //   await _bleController.disconnectDevice(item.device);
+                  //   await _bleController.clear();
+                  //   _prepareData();
+                  //   _startTimer();
+                  // }
                 },
                 iconPath: '',
                 title: item.device.platformName,
@@ -126,7 +140,7 @@ class _PlaceListPageState extends State<PlaceListPage> {
 
   _calculateRssi(ScanResult bleDevice) {
     // Distance = 10 ^ ((Measured Power -RSSI)/(10 * N))
-    double distance =  pow(10, (-60 - bleDevice.rssi) / (10 * 3)).toDouble();
+    double distance = pow(10, (-60 - bleDevice.rssi) / (10 * 3)).toDouble();
 
     return distance.toStringAsFixed(2);
   }
