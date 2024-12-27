@@ -12,6 +12,18 @@ class BleController extends GetxController {
   List favoriteList = [];
   int? rssi;
 
+  int? rssi1Avg;
+  int? rssi2Avg;
+  int? rssi3Avg;
+  int? rssi4Avg;
+  int? rssi5Avg;
+
+  List<int> rssi1List = [];
+  List<int> rssi2List = [];
+  List<int> rssi3List = [];
+  List<int> rssi4List = [];
+  List<int> rssi5List = [];
+
   scanDevices() async {
     if (kDebugMode) {
       print('start scan');
@@ -25,8 +37,10 @@ class BleController extends GetxController {
           deviceList.value = results
               .where((e) {
                 if (e.device.platformName.contains('Ruuvi')) {
-                  print(
-                      '${e.device.remoteId} ${e.device.platformName} ${e.rssi}');
+                  if (kDebugMode) {
+                    print(
+                        '${e.device.remoteId} ${e.device.platformName} ${e.rssi}');
+                  }
                 }
                 return e.device.platformName.contains('Ruuvi');
               })
@@ -64,6 +78,20 @@ class BleController extends GetxController {
 
   readRssi(BluetoothDevice device) async {
     rssi = await device.readRssi(timeout: 1);
+  }
+
+  getRssi({
+    required BluetoothDevice device,
+    required int? rssi,
+    required List<int> rssiList,
+  }) async {
+    int rssi = await device.readRssi(timeout: 1);
+    rssiList.add(rssi);
+
+    if (rssiList.length >= 10) {
+      rssi = (rssiList.reduce((a, b) => a + b) / rssiList.length).toInt();
+    }
+    print(rssiList);
   }
 
   disconnectDevice(BluetoothDevice device) async {

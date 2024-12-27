@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
 import 'package:seeable/constant/value_constant.dart';
 import 'package:seeable/views/navigation/controller/ble_controller.dart';
@@ -34,21 +35,40 @@ class _NavigationPageState extends State<NavigationPage> {
   double userX = 0.0, userY = 0.0;
   double rotationX = 0.0, rotationY = 0.0, rotationZ = 0.0;
 
+  StreamSubscription<MagnetometerEvent>? _magnetometerSubscription;
+  StreamSubscription<GyroscopeEvent>? _gyroscopeSubscription;
+
+  final FlutterTts _tts = FlutterTts();
+
   @override
   void initState() {
     super.initState();
 
+    _tts.setLanguage("th-TH");
     _startTimer();
     _trackOrientation();
   }
+
+  // void _provideNavigationInstruction(double angle) async {
+  //   String instruction;
+  //   if (angle == 0.0) {
+  //     instruction = "Straight ahead";
+  //   } else if (angle < 0.0) {
+  //     instruction = "Turn left";
+  //   } else {
+  //     instruction = "Turn right";
+  //   }
+  //   await _tts.speak(instruction);
+  // }
 
   _startTimer() async {
     await _bleController.connectDevice(widget.device);
 
     _timer ??= Timer.periodic(
       const Duration(milliseconds: 500),
-          (Timer t) async {
+      (Timer t) async {
         await _bleController.readRssi(widget.device);
+
 
         if (mounted) {
           setState(() {});
@@ -58,22 +78,21 @@ class _NavigationPageState extends State<NavigationPage> {
   }
 
   _trackOrientation() {
-    magnetometerEvents.listen((MagnetometerEvent event) {
+    _magnetometerSubscription =
+        magnetometerEvents.listen((MagnetometerEvent event) {
       angle = atan2(event.y, event.x) * (180 / pi);
       setState(() {});
     });
 
-    gyroscopeEvents.listen((GyroscopeEvent event) {
-      setState(() {
-        rotationX += event.x;
-        rotationY += event.y;
-        rotationZ += event.z;
+    _gyroscopeSubscription = gyroscopeEvents.listen((GyroscopeEvent event) {
+      rotationX += event.x;
+      rotationY += event.y;
+      rotationZ += event.z;
 
-        userX += event.y * 0.01;
-        userY += event.x * 0.01;
-        print(userX);
-        print(userY);
-      });
+      userX += event.y * 0.01;
+      userY += event.x * 0.01;
+
+      setState(() {});
     });
   }
 
@@ -81,10 +100,20 @@ class _NavigationPageState extends State<NavigationPage> {
     // Distance = 10 ^ ((Measured Power -RSSI)/(10 * N))
     if (_bleController.rssi != null) {
       double distance =
-      pow(10, (-69 - _bleController.rssi!) / (10 * 3)).toDouble();
+          pow(10, (-69 - _bleController.rssi!) / (10 * 3)).toDouble();
 
       return distance.toStringAsFixed(2);
     }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _timer = null;
+    _magnetometerSubscription?.cancel();
+    _gyroscopeSubscription?.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -100,7 +129,12 @@ class _NavigationPageState extends State<NavigationPage> {
           align: TextAlign.center,
         ),
         leading: InkWell(
-          onTap: () {
+          onTap: () async {
+            await _bleController.disconnectDevice(widget.device);
+            _timer?.cancel();
+            _magnetometerSubscription?.cancel();
+            _gyroscopeSubscription?.cancel();
+
             Get.back(result: true);
           },
           child: const Padding(
@@ -164,6 +198,8 @@ class _NavigationPageState extends State<NavigationPage> {
         CustomSubmitButton(
           onTap: () {
             isNavigate = true;
+            // _provideNavigationInstruction();
+
             setState(() {});
           },
           title: 'start'.tr,
@@ -219,7 +255,8 @@ class _NavigationPageState extends State<NavigationPage> {
         const SizedBox(height: marginX2),
         CustomSubmitButton(
           onTap: () {},
-          title: '${angle.toStringAsFixed(0)}° / ${_bleController.rssi} / ${_calculateRssi()}m',
+          title:
+              '${angle.toStringAsFixed(0)}° / ${_bleController.rssi} / ${_calculateRssi()}m',
           buttonHeight: 80.0,
           buttonColor: Colors.grey.shade300,
           buttonMargin: const EdgeInsets.symmetric(

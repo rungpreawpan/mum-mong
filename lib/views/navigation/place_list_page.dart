@@ -50,7 +50,7 @@ class _PlaceListPageState extends State<PlaceListPage> {
   _startTimer() async {
     _timer ??= Timer.periodic(
       const Duration(seconds: 5),
-          (Timer t) async {
+      (Timer t) async {
         await _bleController.scanDevices();
 
         if (mounted) {
@@ -115,7 +115,7 @@ class _PlaceListPageState extends State<PlaceListPage> {
 
                   //TODO:
                   Get.to(
-                        () => NavigationPage(device: item.device),
+                    () => NavigationPage(device: item.device),
                   );
 
                   // if (result != null) {
