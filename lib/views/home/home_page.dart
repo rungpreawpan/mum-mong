@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _bleController.clear();
+    _bleController.clearDevice();
   }
 
   List featuresList = [

@@ -49,32 +49,34 @@ class _NavigationPageState extends State<NavigationPage> {
     _trackOrientation();
   }
 
-  // void _provideNavigationInstruction(double angle) async {
-  //   String instruction;
-  //   if (angle == 0.0) {
-  //     instruction = "Straight ahead";
-  //   } else if (angle < 0.0) {
-  //     instruction = "Turn left";
-  //   } else {
-  //     instruction = "Turn right";
-  //   }
-  //   await _tts.speak(instruction);
-  // }
+  void _provideNavigationInstruction(double angle) async {
+    String instruction;
+    if (angle == 0.0) {
+      instruction = 'straight ahead'.tr;
+    } else if (angle < 0.0) {
+      instruction = 'turn left'.tr;
+    } else {
+      instruction = 'turn right'.tr;
+    }
+    await _tts.speak(instruction);
+  }
 
   _startTimer() async {
     await _bleController.connectDevice(widget.device);
 
-    _timer ??= Timer.periodic(
-      const Duration(milliseconds: 500),
-      (Timer t) async {
-        await _bleController.readRssi(widget.device);
-
-
-        if (mounted) {
-          setState(() {});
-        }
-      },
-    );
+    // _timer ??= Timer.periodic(
+    //   const Duration(seconds: 3),
+    //   (Timer t) async {
+    //     await _bleController.scanDevices();
+    //
+    //     await _bleController.calculateRssi(
+    //       _bleController.deviceList,
+    //       widget.device,
+    //     );
+    //
+    //     setState(() {});
+    //   },
+    // );
   }
 
   _trackOrientation() {
@@ -94,16 +96,6 @@ class _NavigationPageState extends State<NavigationPage> {
 
       setState(() {});
     });
-  }
-
-  _calculateRssi() {
-    // Distance = 10 ^ ((Measured Power -RSSI)/(10 * N))
-    if (_bleController.rssi != null) {
-      double distance =
-          pow(10, (-69 - _bleController.rssi!) / (10 * 3)).toDouble();
-
-      return distance.toStringAsFixed(2);
-    }
   }
 
   @override
@@ -197,9 +189,21 @@ class _NavigationPageState extends State<NavigationPage> {
         const SizedBox(height: marginX2),
         CustomSubmitButton(
           onTap: () {
-            isNavigate = true;
             // _provideNavigationInstruction();
+            _timer ??= Timer.periodic(
+              const Duration(seconds: 3),
+                  (Timer t) async {
+                await _bleController.scanDevices();
 
+                await _bleController.calculateRssi(
+                  _bleController.deviceList,
+                  widget.device,
+                );
+
+                setState(() {});
+              },
+            );
+            isNavigate = true;
             setState(() {});
           },
           title: 'start'.tr,
@@ -231,43 +235,157 @@ class _NavigationPageState extends State<NavigationPage> {
   }
 
   _navigation() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: Get.width - 40.0,
-          height: Get.width - 40.0,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(Get.width - 40 / 2),
-          ),
-          child: Center(
-            child: RotationTransition(
-              turns: AlwaysStoppedAnimation(angle / 360),
-              child: Icon(
-                Icons.navigation_rounded,
-                color: Colors.grey.shade800,
-                size: 250.0,
-              ),
+    // return Obx(() {
+    return SizedBox(
+      width: Get.width,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(
+            width: 330.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    TextFontStyle('(0.0,2.6)'),
+                    TextFontStyle('Ruuvi BAAD'),
+                  ],
+                ),
+                Column(
+                  children: [
+                    TextFontStyle('(2.65,2.6)'),
+                    TextFontStyle('Ruuvi 2559'),
+                  ],
+                ),
+              ],
             ),
           ),
-        ),
-        const SizedBox(height: marginX2),
-        CustomSubmitButton(
-          onTap: () {},
-          title:
-              '${angle.toStringAsFixed(0)}° / ${_bleController.rssi} / ${_calculateRssi()}m',
-          buttonHeight: 80.0,
-          buttonColor: Colors.grey.shade300,
-          buttonMargin: const EdgeInsets.symmetric(
-            horizontal: 40.0,
-            vertical: 20.0,
+          Container(
+            height: 260.0,
+            width: 330.0,
+            color: primaryColor,
+            child: Stack(
+              children: [
+                const Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Icon(
+                        Icons.circle,
+                        color: Colors.white,
+                        size: 16.0,
+                      ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 65,
+                      child: Icon(
+                        Icons.circle,
+                        color: Colors.white,
+                        size: 16.0,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      child: Icon(
+                        Icons.circle,
+                        color: Colors.white,
+                        size: 16.0,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 125,
+                      right: 0,
+                      child: Icon(
+                        Icons.circle,
+                        color: Colors.white,
+                        size: 16.0,
+                      ),
+                    ),
+                  ],
+                ),
+                // TODO:
+                // phone
+                Positioned(
+                  bottom: _bleController.calculateY != null
+                      ? _bleController.calculateY! * 100
+                      : 0,
+                  left: _bleController.calculateX != null
+                      ? _bleController.calculateX! * 100
+                      : 0,
+                  child: const Icon(
+                    Icons.phone_android_rounded,
+                    color: Colors.black,
+                    size: 16.0,
+                  ),
+                ),
+              ],
+            ),
           ),
-          borderRadius: 15.0,
-          fontSize: 30.0,
-          fontColor: Colors.black,
-        ),
-      ],
+          const SizedBox(
+            width: 330.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    TextFontStyle('(0.0,0.0)'),
+                    TextFontStyle('Ruuvi 30E9'),
+                  ],
+                ),
+                Column(
+                  children: [
+                    TextFontStyle('(3.3,1.25)'),
+                    TextFontStyle('Ruuvi 862F'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+    // });
+    // return Column(
+    //   mainAxisAlignment: MainAxisAlignment.center,
+    //   children: [
+    //     Container(
+    //       width: Get.width - 40.0,
+    //       height: Get.width - 40.0,
+    //       decoration: BoxDecoration(
+    //         color: Colors.grey.shade300,
+    //         borderRadius: BorderRadius.circular(Get.width - 40 / 2),
+    //       ),
+    //       child: Center(
+    //         child: RotationTransition(
+    //           turns: AlwaysStoppedAnimation(angle / 360),
+    //           child: Icon(
+    //             Icons.navigation_rounded,
+    //             color: Colors.grey.shade800,
+    //             size: 250.0,
+    //           ),
+    //         ),
+    //       ),
+    //     ),
+    //     const SizedBox(height: marginX2),
+    //     CustomSubmitButton(
+    //       onTap: () {},
+    //       title:
+    //           '${angle.toStringAsFixed(0)}° / ${_bleController.rssi} / ${_calculateRssi()}m',
+    //       buttonHeight: 80.0,
+    //       buttonColor: Colors.grey.shade300,
+    //       buttonMargin: const EdgeInsets.symmetric(
+    //         horizontal: 40.0,
+    //         vertical: 20.0,
+    //       ),
+    //       borderRadius: 15.0,
+    //       fontSize: 30.0,
+    //       fontColor: Colors.black,
+    //     ),
+    //   ],
+    // );
   }
 }

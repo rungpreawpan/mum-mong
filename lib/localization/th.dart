@@ -41,4 +41,9 @@ const Map<String, String> th = {
 
   // data
   'data not found': 'ไม่พบข้อมูล',
+
+  // navigation
+  'straight ahead': 'ตรงไป',
+  'turn left': 'เลี้ยวซ้าย',
+  'turn right': 'เลี้ยวขวา',
 };

@@ -49,7 +49,7 @@ class _PlaceListPageState extends State<PlaceListPage> {
 
   _startTimer() async {
     _timer ??= Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 3),
       (Timer t) async {
         await _bleController.scanDevices();
 

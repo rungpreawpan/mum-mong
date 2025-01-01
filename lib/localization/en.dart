@@ -41,4 +41,9 @@ const Map<String, String> en = {
 
   // etc
   'data not found': 'Data not found',
+
+  // navigation
+  'straight ahead': 'Go Ahead',
+  'turn left': 'Turn Left',
+  'turn right': 'Turn Right',
 };
